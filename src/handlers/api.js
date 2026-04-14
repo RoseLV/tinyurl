@@ -227,6 +227,18 @@ export async function handleApi(request, env) {
       await saveList(env, aliveSlugs);
     }
 
+    // Merge click counts from D1
+    if (aliveSlugs.length > 0) {
+      const placeholders = aliveSlugs.map(() => '?').join(',');
+      const { results } = await env.DB.prepare(
+        `SELECT slug, count FROM clicks WHERE slug IN (${placeholders})`
+      ).bind(...aliveSlugs).all();
+      const countMap = Object.fromEntries(results.map((r) => [r.slug, r.count]));
+      for (const link of links) {
+        link.clicks = countMap[link.slug] || 0;
+      }
+    }
+
     return json(links);
   }
 
@@ -236,7 +248,10 @@ export async function handleApi(request, env) {
     if (!checkAuth(request, env)) return json({ error: 'Unauthorized' }, 401);
 
     const slug = deleteMatch[1];
-    await env.URLS.delete(`link:${slug}`);
+    await Promise.all([
+      env.URLS.delete(`link:${slug}`),
+      env.DB.prepare('DELETE FROM clicks WHERE slug = ?').bind(slug).run(),
+    ]);
 
     const list = await getList(env);
     await saveList(env, list.filter((s) => s !== slug));

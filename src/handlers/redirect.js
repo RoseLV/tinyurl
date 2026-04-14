@@ -1,6 +1,6 @@
 /**
  * Handles /{slug} → redirect to original URL.
- * Also increments the click counter in KV.
+ * Also increments the click counter in D1.
  */
 export async function handleRedirect(request, env, ctx) {
   const url = new URL(request.url);
@@ -22,19 +22,15 @@ export async function handleRedirect(request, env, ctx) {
     return new Response('Link not found or expired', { status: 404 });
   }
 
-  link.clicks = (link.clicks || 0) + 1;
+  // Atomic click increment via D1 — no lost updates under concurrency.
+  const clickPromise = env.DB.prepare(
+    'INSERT INTO clicks (slug, count) VALUES (?, 1) ON CONFLICT(slug) DO UPDATE SET count = count + 1'
+  ).bind(slug).run();
 
-  const putOptions = link.expireAt
-    ? { expiration: Math.floor(link.expireAt / 1000) }
-    : undefined;
-
-  // Use waitUntil so the redirect stays fast, but the click write is still
-  // owned by the runtime and survives after the response is sent.
-  const writePromise = env.URLS.put(`link:${slug}`, JSON.stringify(link), putOptions);
   if (ctx && typeof ctx.waitUntil === 'function') {
-    ctx.waitUntil(writePromise);
+    ctx.waitUntil(clickPromise);
   } else {
-    await writePromise;
+    await clickPromise;
   }
 
   // 301 can be cached aggressively by browsers and break click tracking.

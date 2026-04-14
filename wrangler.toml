@@ -10,6 +10,15 @@ binding = "URLS"
 id = "95b5b02f7d9e4ae3823f5ce73ca67f17"
 preview_id = "ad077d9085b747908d7ce9e95e80bfb9"
 
+# ── D1 database (atomic click counter) ───────────────────────
+# Create with:  wrangler d1 create urlteq-clicks
+# Then paste the real database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "urlteq-clicks"
+database_id = "aadfa22e-b6f6-49a8-94e2-a5dcd2bb6e2f"
+migrations_dir = "migrations"
+
 # ── Environment variables ─────────────────────────────────────
 [vars]
 RESEND_API_KEY = ""                              # 可选：get free key at resend.com

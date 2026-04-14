@@ -27,6 +27,9 @@ export async function handleCron(env) {
 
     // Send reminder if expiry is within next 24 hours
     if (link.expireAt > now && link.expireAt <= in24h) {
+      // Fetch click count from D1
+      const row = await env.DB.prepare('SELECT count FROM clicks WHERE slug = ?').bind(slug).first();
+      link.clicks = row ? row.count : 0;
       const sent = await sendExpiryEmail(env, link);
       if (sent) {
         link.notified = true;

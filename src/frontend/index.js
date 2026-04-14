@@ -965,6 +965,9 @@ function render(links) {
   var origin = window.location.origin;
   var now = Date.now();
 
+  // Sort newest first
+  links = links.slice().sort(function(a, b) { return b.created - a.created; });
+
   // Group by campaign
   var campaignMap = {};
   var campaignOrder = [];
@@ -982,60 +985,71 @@ function render(links) {
     }
   });
 
-  var html = '';
-
-  // Campaign groups
+  // Build a unified list of render items (campaigns + ungrouped) sorted by created desc
+  var items = [];
   campaignOrder.forEach(function(name) {
     var cLinks = campaignMap[name];
-    var total = cLinks.reduce(function(s, l) { return s + (l.clicks || 0); }, 0);
-    var date = new Date(cLinks[0].created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    html += '<div class="campaign-group">' +
-      '<div class="campaign-header" onclick="this.nextElementSibling.classList.toggle(\\'collapsed\\')">' +
-      '<div><span class="campaign-name">' + name + '</span>' +
-      '<span class="campaign-meta"> &middot; ' + cLinks.length + ' channels &middot; ' + total + ' total clicks</span></div>' +
-      '<span class="hmeta">' + date + '</span></div>' +
-      '<div class="campaign-links">';
-    cLinks.forEach(function(lk) {
+    items.push({ type: 'campaign', name: name, links: cLinks, created: cLinks[0].created });
+  });
+  ungrouped.slice(0, 15).forEach(function(lk) {
+    items.push({ type: 'link', link: lk, created: lk.created });
+  });
+  items.sort(function(a, b) { return b.created - a.created; });
+
+  var html = '';
+  var fmtDate = function(ts) {
+    return new Date(ts).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12: false });
+  };
+
+  items.forEach(function(item) {
+    if (item.type === 'campaign') {
+      var cLinks = item.links;
+      var total = cLinks.reduce(function(s, l) { return s + (l.clicks || 0); }, 0);
+      html += '<div class="campaign-group">' +
+        '<div class="campaign-header" onclick="this.nextElementSibling.classList.toggle(\\'collapsed\\')">' +
+        '<div><span class="campaign-name">' + item.name + '</span>' +
+        '<span class="campaign-meta"> &middot; ' + cLinks.length + ' channels &middot; ' + total + ' total clicks</span></div>' +
+        '<span class="hmeta">' + fmtDate(item.created) + '</span></div>' +
+        '<div class="campaign-links">';
+      cLinks.forEach(function(lk) {
+        var shortUrl = origin + '/' + lk.slug;
+        var clicks = lk.clicks || 0;
+        html += '<div class="ch-item"><div class="ch-link">' +
+          '<span class="ch-label">' + (lk.channel || '—') + '</span>' +
+          '<a class="ch-slug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
+          '<span class="ch-clicks">' + clicks + ' clicks &middot; ' + formatShare(clicks, total) + '</span>' +
+          '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
+          '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
+          '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
+      });
+      html += '</div></div>';
+    } else {
+      var lk = item.link;
       var shortUrl = origin + '/' + lk.slug;
-      var clicks = lk.clicks || 0;
-      html += '<div class="ch-item"><div class="ch-link">' +
-        '<span class="ch-label">' + (lk.channel || '—') + '</span>' +
-        '<a class="ch-slug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
-        '<span class="ch-clicks">' + clicks + ' clicks &middot; ' + formatShare(clicks, total) + '</span>' +
+      var urlTrim = lk.url.length > 52 ? lk.url.slice(0,52) + '...' : lk.url;
+      var expiryBadge = '';
+      if (lk.expireAt) {
+        var diff = lk.expireAt - now;
+        var days = Math.ceil(diff / 86400000);
+        if (diff < 0) expiryBadge = '<span class="badge badge-expired">Expired</span>';
+        else if (days <= 3) expiryBadge = '<span class="badge badge-expiry">Expires in ' + days + 'd</span>';
+        else {
+          var d = new Date(lk.expireAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+          expiryBadge = '<span class="badge badge-expiry">Exp ' + d + '</span>';
+        }
+      }
+      html += '<div class="hitem">' +
+        '<div class="hitem-top">' +
+        '<a class="hslug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
+        '<span class="hmeta">' + fmtDate(lk.created) + '</span></div>' +
+        '<div class="hurl" title="' + lk.url + '">' + urlTrim + '</div>' +
+        '<div class="hbot">' +
+        '<span class="badge badge-click">' + (lk.clicks||0) + ' clicks</span>' +
+        expiryBadge +
         '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
         '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
         '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
-    });
-    html += '</div></div>';
-  });
-
-  // Ungrouped links
-  ungrouped.slice(0, 15).forEach(function(lk) {
-    var shortUrl = origin + '/' + lk.slug;
-    var date = new Date(lk.created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    var urlTrim = lk.url.length > 52 ? lk.url.slice(0,52) + '...' : lk.url;
-    var expiryBadge = '';
-    if (lk.expireAt) {
-      var diff = lk.expireAt - now;
-      var days = Math.ceil(diff / 86400000);
-      if (diff < 0) expiryBadge = '<span class="badge badge-expired">Expired</span>';
-      else if (days <= 3) expiryBadge = '<span class="badge badge-expiry">Expires in ' + days + 'd</span>';
-      else {
-        var d = new Date(lk.expireAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-        expiryBadge = '<span class="badge badge-expiry">Exp ' + d + '</span>';
-      }
     }
-    html += '<div class="hitem">' +
-      '<div class="hitem-top">' +
-      '<a class="hslug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
-      '<span class="hmeta">' + date + '</span></div>' +
-      '<div class="hurl" title="' + lk.url + '">' + urlTrim + '</div>' +
-      '<div class="hbot">' +
-      '<span class="badge badge-click">' + (lk.clicks||0) + ' clicks</span>' +
-      expiryBadge +
-      '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
-      '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
-      '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
   });
 
   el.innerHTML = html;
