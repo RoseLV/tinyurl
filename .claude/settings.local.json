@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wrangler deploy:*)",
+      "Bash(npx wrangler:*)",
+      "Read(//Users/iran/.nvm/alias/**)",
+      "Bash(volta --version)",
+      "Bash(command -v node)"
+    ]
+  }
+}

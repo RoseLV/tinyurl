@@ -17,9 +17,10 @@ export async function handleRedirect(request, env) {
 
   const link = JSON.parse(raw);
 
-  // Increment click counter before redirecting
+  // Fire-and-forget click increment — do NOT await so bots can't exhaust KV write quota
+  // by holding the worker open; the redirect still happens instantly.
   link.clicks = (link.clicks || 0) + 1;
-  await env.URLS.put(`link:${slug}`, JSON.stringify(link));
+  env.URLS.put(`link:${slug}`, JSON.stringify(link)); // intentionally no await
 
   return Response.redirect(link.url, 301);
 }

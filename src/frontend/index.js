@@ -279,7 +279,10 @@ export function getHtml() {
 <div class="overlay" id="authModal">
   <div class="modal">
     <h3>🔑 API Key</h3>
-    <p>Enter your API key to access URLteq.</p>
+    <p>This app is private — only authorized users can create or manage links.<br><br>
+    Enter the API key you configured when deploying URLteq.<br>
+    Your key is stored locally in this browser and never sent anywhere except your own Worker.</p>
+    <div id="authError" style="display:none;color:#C95B55;font-size:13px;margin-bottom:8px;">❌ Incorrect API key. Please try again.</div>
     <input class="inp" type="password" id="apiKeyInput" placeholder="Enter API key…" />
     <button class="modal-btn" onclick="saveKey()">Continue →</button>
   </div>
@@ -452,8 +455,9 @@ function saveKey() {
   document.getElementById('authModal').style.display = 'none';
   loadLinks();
 }
-function showKeyModal() {
+function showKeyModal(showError = false) {
   document.getElementById('apiKeyInput').value = '';
+  document.getElementById('authError').style.display = showError ? 'block' : 'none';
   document.getElementById('authModal').style.display = 'flex';
 }
 document.getElementById('apiKeyInput').addEventListener('keydown', e => {
@@ -544,7 +548,7 @@ async function doShorten() {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
       body: JSON.stringify(body),
     });
-    if (res.status === 401) { showKeyModal(); return; }
+    if (res.status === 401) { showKeyModal(true); return; }
     const data = await res.json();
     if (data.error) { alert('Error: ' + data.error); return; }
     currentShort = data.shortUrl;
