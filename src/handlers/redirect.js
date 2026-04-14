@@ -2,7 +2,7 @@
  * Handles /{slug} → redirect to original URL.
  * Also increments the click counter in KV.
  */
-export async function handleRedirect(request, env) {
+export async function handleRedirect(request, env, ctx) {
   const url = new URL(request.url);
   const slug = url.pathname.slice(1); // remove leading "/"
 
@@ -17,10 +17,33 @@ export async function handleRedirect(request, env) {
 
   const link = JSON.parse(raw);
 
-  // Fire-and-forget click increment — do NOT await so bots can't exhaust KV write quota
-  // by holding the worker open; the redirect still happens instantly.
-  link.clicks = (link.clicks || 0) + 1;
-  env.URLS.put(`link:${slug}`, JSON.stringify(link)); // intentionally no await
+  if (link.expireAt && link.expireAt <= Date.now()) {
+    await env.URLS.delete(`link:${slug}`);
+    return new Response('Link not found or expired', { status: 404 });
+  }
 
-  return Response.redirect(link.url, 301);
+  link.clicks = (link.clicks || 0) + 1;
+
+  const putOptions = link.expireAt
+    ? { expiration: Math.floor(link.expireAt / 1000) }
+    : undefined;
+
+  // Use waitUntil so the redirect stays fast, but the click write is still
+  // owned by the runtime and survives after the response is sent.
+  const writePromise = env.URLS.put(`link:${slug}`, JSON.stringify(link), putOptions);
+  if (ctx && typeof ctx.waitUntil === 'function') {
+    ctx.waitUntil(writePromise);
+  } else {
+    await writePromise;
+  }
+
+  // 301 can be cached aggressively by browsers and break click tracking.
+  // Also disable caching on the redirect response itself.
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: link.url,
+      'Cache-Control': 'no-store',
+    },
+  });
 }

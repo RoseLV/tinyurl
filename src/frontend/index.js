@@ -109,29 +109,14 @@ export function getHtml() {
     .card-green .inp:focus { border-color: var(--g-accent); box-shadow: 0 0 0 3px rgba(82,201,155,.1); }
     .card-pink  .inp:focus { border-color: var(--p-accent); box-shadow: 0 0 0 3px rgba(240,128,128,.1); }
 
-    /* ── UTM section ────────────────────────── */
+    /* ── Collapsible section ─────────────────── */
     .collapsible {
       overflow: hidden;
       max-height: 0;
       opacity: 0;
       transition: max-height .35s ease, opacity .25s ease;
     }
-    .collapsible.open { max-height: 800px; opacity: 1; }
-
-    .notice {
-      display: flex; align-items: center; gap: 8px;
-      padding: 9px 13px;
-      background: var(--white);
-      border-radius: 8px;
-      font-size: 13px; font-weight: 500;
-      margin-bottom: 12px;
-    }
-    .card-green .notice { color: var(--g-dark); }
-    .card-pink  .notice { color: var(--p-dark); }
-    .pulse { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite; }
-    .card-green .pulse { background: var(--g-accent); }
-    .card-pink  .pulse  { background: var(--p-accent); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .collapsible.open { max-height: 2000px; opacity: 1; }
 
     .section-label {
       font-size: 10px; font-weight: 700;
@@ -139,7 +124,7 @@ export function getHtml() {
       color: var(--gray-600); margin: 12px 0 8px;
     }
 
-    /* Chips */
+    /* Chips (multi-select) */
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
     .chip {
       padding: 5px 12px; border-radius: 20px;
@@ -155,7 +140,7 @@ export function getHtml() {
     .card-pink  .chip:hover  { background: rgba(240,128,128,.12); }
     .card-pink  .chip.active { background: var(--p-accent); color: var(--white); }
 
-    /* 2-col UTM fields */
+    /* 2-col fields */
     .fields-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .fields-2 .span2 { grid-column: 1 / -1; }
 
@@ -201,6 +186,46 @@ export function getHtml() {
     .card-green .btn-copy { background: var(--g-bg); color: var(--g-dark); }
     .btn-dl { background: var(--gray-200); color: var(--gray-800); }
     .qr-wrap { display: flex; justify-content: center; padding: 4px 0; }
+    .qr-palette {
+      margin-top: 14px; padding: 14px;
+      background: rgba(255,255,255,.65);
+      border-radius: var(--radius-sm);
+    }
+    .qr-palette .section-label { margin: 0 0 8px; }
+    .qr-palette-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 10px;
+    }
+    .qr-current-label {
+      font-size: 12px; font-weight: 700; color: var(--g-dark);
+    }
+    .qr-current-value {
+      font-size: 12px; font-weight: 800; color: var(--g-dark);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .qr-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+    .qr-swatch {
+      width: 28px; height: 28px; border-radius: 999px;
+      border: 2px solid transparent; cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+      transition: transform .12s, border-color .12s, box-shadow .12s;
+    }
+    .qr-swatch:hover { transform: translateY(-1px); }
+    .qr-swatch.active {
+      border-color: var(--g-dark);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.8);
+    }
+    .qr-custom {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 12px;
+    }
+    .qr-custom-label {
+      font-size: 12px; font-weight: 700; color: var(--g-dark);
+    }
+    .qr-color-input {
+      width: 44px; height: 32px; padding: 0; cursor: pointer;
+      border: none; background: transparent;
+    }
 
     /* ── History ────────────────────────────── */
     .history { display: flex; flex-direction: column; gap: 2px; }
@@ -271,6 +296,93 @@ export function getHtml() {
       .hero h1 { font-size: 26px; }
       .fields-2 { grid-template-columns: 1fr; }
     }
+
+    /* ── Add channel row ───────────────────── */
+    .add-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .add-inp { flex: 1 !important; }
+    .btn-add {
+      width: 42px; flex-shrink: 0; border-radius: var(--radius-sm);
+      border: 2px solid var(--g-accent); background: var(--white);
+      color: var(--g-accent); font-size: 20px; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-add:hover { background: var(--g-bg); }
+
+    /* ── Tags (removable) ──────────────────── */
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 8px 4px 10px; border-radius: 14px;
+      font-size: 12px; font-weight: 600;
+      background: var(--g-accent); color: var(--white);
+    }
+    .tag-x { cursor: pointer; font-size: 14px; opacity: .7; line-height: 1; }
+    .tag-x:hover { opacity: 1; }
+    .sel-summary {
+      font-size: 12px; font-weight: 600; color: var(--g-dark);
+      margin: 6px 0; line-height: 1.4;
+    }
+
+    /* ── Batch result ──────────────────────── */
+    .batch-header {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 10px;
+    }
+    .batch-item { padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+    .batch-item:last-child { border-bottom: none; }
+    .batch-item-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .batch-channel {
+      font-size: 11px; font-weight: 700; color: var(--g-dark);
+      background: rgba(82,201,155,.15); padding: 2px 8px; border-radius: 8px;
+    }
+    .batch-url {
+      font-size: 14px; font-weight: 800; color: var(--g-dark);
+      flex: 1; word-break: break-all;
+    }
+    .batch-qr { display: none; padding: 8px 0; justify-content: center; }
+    .batch-qr.show { display: flex; }
+
+    /* ── Campaign groups (history) ──────────── */
+    .campaign-group { margin-bottom: 12px; }
+    .campaign-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px; border-radius: 8px; cursor: pointer;
+      background: rgba(192,90,85,.06); margin-bottom: 2px;
+    }
+    .campaign-header:hover { background: rgba(192,90,85,.10); }
+    .campaign-name { font-size: 14px; font-weight: 800; color: var(--p-dark); }
+    .campaign-meta { font-size: 11px; color: var(--gray-400); }
+    .campaign-links.collapsed { display: none; }
+    .ch-item { padding: 2px 0 6px; }
+    .ch-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 8px 5px 16px; font-size: 13px;
+    }
+    .ch-label {
+      font-size: 11px; font-weight: 600; color: var(--gray-600);
+      background: var(--gray-100); padding: 1px 6px; border-radius: 6px;
+      white-space: nowrap;
+    }
+    .ch-slug { color: var(--p-dark); font-weight: 700; text-decoration: none; }
+    .ch-slug:hover { text-decoration: underline; }
+    .ch-clicks { font-size: 11px; color: var(--p-accent); font-weight: 700; margin-left: auto; }
+    .btn-link {
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 700; color: var(--p-accent);
+      padding: 0;
+    }
+    .btn-link:hover { color: var(--p-dark); }
+    .history-qr {
+      display: none; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 4px 8px 6px 16px;
+    }
+    .history-qr.show { display: flex; }
+    .history-qr-code {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 136px; min-height: 136px;
+      background: var(--white); border-radius: 12px; padding: 8px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+    }
   </style>
 </head>
 <body>
@@ -278,13 +390,13 @@ export function getHtml() {
 <!-- Auth modal -->
 <div class="overlay" id="authModal">
   <div class="modal">
-    <h3>🔑 API Key</h3>
+    <h3>API Key</h3>
     <p>This app is private — only authorized users can create or manage links.<br><br>
     Enter the API key you configured when deploying URLteq.<br>
     Your key is stored locally in this browser and never sent anywhere except your own Worker.</p>
-    <div id="authError" style="display:none;color:#C95B55;font-size:13px;margin-bottom:8px;">❌ Incorrect API key. Please try again.</div>
+    <div id="authError" style="display:none;color:#C95B55;font-size:13px;margin-bottom:8px;">Incorrect API key. Please try again.</div>
     <input class="inp" type="password" id="apiKeyInput" placeholder="Enter API key…" />
-    <button class="modal-btn" onclick="saveKey()">Continue →</button>
+    <button class="modal-btn" onclick="saveKey()">Continue</button>
   </div>
 </div>
 
@@ -296,8 +408,8 @@ export function getHtml() {
 
 <main>
   <div class="hero">
-    <h1>Short Links · <span class="ag">UTM Tracking</span><br/>QR Codes · <span class="ap">Expiry Reminders</span></h1>
-    <p>Paste a URL, set campaign params, expiry date — get a short link and QR code instantly.</p>
+    <h1>Short Links · <span class="ag">Multi-Channel UTM</span><br/>QR Codes · <span class="ap">Campaign Analytics</span></h1>
+    <p>Create campaign-tracked short links for multiple channels at once.</p>
   </div>
 
   <div class="grid">
@@ -305,7 +417,7 @@ export function getHtml() {
     <!-- ── LEFT: Shorten form ── -->
     <div class="card card-green">
       <div class="card-num">01</div>
-      <h2>Shorten &amp; Track</h2>
+      <h2>Shorten & Track</h2>
 
       <!-- URL -->
       <div class="field">
@@ -315,45 +427,43 @@ export function getHtml() {
           oninput="onUrl()" onpaste="setTimeout(onUrl,30)" />
       </div>
 
-      <!-- Custom slug (optional) -->
-      <div class="field">
-        <label>Custom short code (optional)</label>
+      <!-- Custom slug (single-link only) -->
+      <div class="field" id="slugField">
+        <label>Custom short code (optional, single-link only)</label>
         <input class="inp" type="text" id="customSlug"
           placeholder="e.g. summer-sale  (leave blank to auto-generate)" />
       </div>
 
-      <!-- UTM section -->
-      <div class="collapsible" id="utmSection">
-        <div class="notice">
-          <div class="pulse"></div>
-          <span id="utmNotice">No UTM params detected — add campaign tracking below.</span>
+      <!-- Channel section -->
+      <div class="collapsible" id="channelSection">
+        <div class="field">
+          <label>Campaign Name</label>
+          <input class="inp" type="text" id="campaignName"
+            placeholder="e.g. openclaw-roundtable-3" />
         </div>
 
-        <div class="section-label">Channel preset — select one (none by default)</div>
+        <div class="section-label">Channel presets — click to toggle (multi-select)</div>
         <div class="chips" id="chips"></div>
 
-        <div class="fields-2">
-          <div class="field">
-            <label>Source *</label>
-            <input class="inp" type="text" id="utm_source" placeholder="e.g. google" oninput="clearChips()" />
-          </div>
-          <div class="field">
-            <label>Medium *</label>
-            <input class="inp" type="text" id="utm_medium" placeholder="e.g. cpc" oninput="clearChips()" />
-          </div>
-          <div class="field span2">
-            <label>Campaign</label>
-            <input class="inp" type="text" id="utm_campaign" placeholder="e.g. spring_promo_2025" />
-          </div>
-          <div class="field">
-            <label>Content</label>
-            <input class="inp" type="text" id="utm_content" placeholder="e.g. banner_a" />
-          </div>
-          <div class="field">
-            <label>Term</label>
-            <input class="inp" type="text" id="utm_term" placeholder="e.g. running+shoes" />
-          </div>
+        <hr class="divider" />
+
+        <div class="section-label">Add WeChat Groups</div>
+        <div class="add-row">
+          <input class="inp add-inp" type="text" id="groupInput"
+            placeholder="Enter group name, e.g. AI爱好者" />
+          <button class="btn-add" onclick="addCustom('group')">+</button>
         </div>
+        <div class="tags" id="groupTags"></div>
+
+        <div class="section-label">Add WeChat Moments</div>
+        <div class="add-row">
+          <input class="inp add-inp" type="text" id="momentsInput"
+            placeholder="Enter person name, e.g. Andrew" />
+          <button class="btn-add" onclick="addCustom('moments')">+</button>
+        </div>
+        <div class="tags" id="momentsTags"></div>
+
+        <div class="sel-summary" id="selSummary"></div>
       </div>
 
       <hr class="divider" />
@@ -370,17 +480,23 @@ export function getHtml() {
         </div>
       </div>
 
-      <button class="btn" id="genBtn" onclick="doShorten()">Generate Short Link →</button>
+      <button class="btn" id="genBtn" onclick="doShorten()">Generate Short Link</button>
 
-      <!-- Result -->
-      <div class="result" id="result">
-        <div class="short-link" id="shortDisplay"></div>
-        <div class="result-row">
-          <button class="btn-sm btn-copy" onclick="copyLink(event)">Copy Link</button>
-          <button class="btn-sm btn-dl"   onclick="downloadQR()">Download QR</button>
+      <div class="qr-palette">
+        <div class="section-label">QR Palette</div>
+        <div class="qr-palette-top">
+          <span class="qr-current-label">Current QR color</span>
+          <span class="qr-current-value" id="qrColorValue">#2A9B72</span>
         </div>
-        <div class="qr-wrap" id="qrWrap"></div>
+        <div class="qr-swatches" id="qrSwatches"></div>
+        <div class="qr-custom">
+          <label class="qr-custom-label" for="qrColorPicker">Custom</label>
+          <input class="qr-color-input" type="color" id="qrColorPicker" value="#2A9B72" />
+        </div>
       </div>
+
+      <!-- Result (populated by JS) -->
+      <div class="result" id="result"></div>
     </div>
 
     <!-- ── RIGHT: History ── -->
@@ -390,7 +506,7 @@ export function getHtml() {
       <div class="history" id="history">
         <p class="empty">Your recently created links will appear here.</p>
       </div>
-      <button class="btn" onclick="loadLinks()" style="margin-top:18px;">Refresh ↻</button>
+      <button class="btn" onclick="loadLinks()" style="margin-top:18px;">Refresh</button>
     </div>
 
   </div>
@@ -400,15 +516,13 @@ export function getHtml() {
 
 <script>
 // ── UTM Presets ───────────────────────────────────────────────
-const PRESETS = [
-  // China
+var PRESETS = [
   {l:'微信公众号', s:'wechat',       m:'social'},
   {l:'小红书',     s:'xiaohongshu',  m:'social'},
   {l:'抖音',       s:'douyin',       m:'video'},
   {l:'微博',       s:'weibo',        m:'social'},
   {l:'知乎',       s:'zhihu',        m:'social'},
   {l:'B站',        s:'bilibili',     m:'video'},
-  // Global social
   {l:'Instagram',  s:'instagram',    m:'social'},
   {l:'TikTok',     s:'tiktok',       m:'video'},
   {l:'Facebook',   s:'facebook',     m:'social'},
@@ -419,26 +533,47 @@ const PRESETS = [
   {l:'Pinterest',  s:'pinterest',    m:'social'},
   {l:'Threads',    s:'threads',      m:'social'},
   {l:'Snapchat',   s:'snapchat',     m:'social'},
-  // Paid
   {l:'Google Ads', s:'google',       m:'cpc'},
   {l:'Meta Ads',   s:'meta',         m:'cpc'},
-  // Other
   {l:'邮件营销',   s:'email',        m:'email'},
   {l:'线下物料',   s:'offline',      m:'qrcode'},
 ];
 
+var QR_PRESETS = ['#2A9B72', '#F08080', '#2563EB', '#0F172A', '#D97706', '#0F766E'];
+
 // ── State ─────────────────────────────────────────────────────
-let apiKey        = localStorage.getItem('urlteq_key') || '';
-let currentShort  = '';
-let activeChip    = null;
+var apiKey         = localStorage.getItem('urlteq_key') || '';
+var selectedPresets = new Set();
+var customGroups   = [];
+var customMoments  = [];
+var batchData      = null;
+var currentShort   = '';
+var qrColorDark    = normalizeHexColor(localStorage.getItem('urlteq_qr_color') || '#2A9B72');
 
 // ── Boot ──────────────────────────────────────────────────────
 function boot() {
   renderChips();
-  // Set min date for expiry picker to tomorrow
-  const tomorrow = new Date();
+  renderQrSwatches();
+  syncQrPalette();
+  var tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   document.getElementById('expireAt').min = tomorrow.toISOString().split('T')[0];
+
+  document.getElementById('groupInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addCustom('group');
+  });
+  document.getElementById('momentsInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addCustom('moments');
+  });
+  document.getElementById('groupTags').addEventListener('click', function(e) {
+    if (e.target.classList.contains('tag-x')) removeCustom('group', e.target.dataset.name);
+  });
+  document.getElementById('momentsTags').addEventListener('click', function(e) {
+    if (e.target.classList.contains('tag-x')) removeCustom('moments', e.target.dataset.name);
+  });
+  document.getElementById('qrColorPicker').addEventListener('input', function(e) {
+    setQrColor(e.target.value);
+  });
 
   if (apiKey) {
     document.getElementById('authModal').style.display = 'none';
@@ -446,206 +581,471 @@ function boot() {
   }
 }
 
+function normalizeHexColor(value) {
+  var color = (value || '').trim().toUpperCase();
+  if (!/^#[0-9A-F]{6}$/.test(color)) return '#2A9B72';
+  return color;
+}
+
+function renderQrSwatches() {
+  var el = document.getElementById('qrSwatches');
+  el.innerHTML = QR_PRESETS.map(function(color) {
+    return '<button class="qr-swatch" type="button" data-color="' + color + '" style="background:' + color + ';" title="' + color + '" onclick="setQrColor(\\'' + color + '\\')"></button>';
+  }).join('');
+}
+
+function syncQrPalette() {
+  var color = normalizeHexColor(qrColorDark);
+  document.getElementById('qrColorPicker').value = color;
+  document.getElementById('qrColorValue').textContent = color;
+  Array.prototype.forEach.call(document.querySelectorAll('.qr-swatch'), function(btn) {
+    btn.classList.toggle('active', btn.dataset.color === color);
+  });
+}
+
+function setQrColor(color) {
+  qrColorDark = normalizeHexColor(color);
+  localStorage.setItem('urlteq_qr_color', qrColorDark);
+  syncQrPalette();
+  rerenderExistingQrs();
+}
+
 // ── Auth ──────────────────────────────────────────────────────
 function saveKey() {
-  const v = document.getElementById('apiKeyInput').value.trim();
+  var v = document.getElementById('apiKeyInput').value.trim();
   if (!v) return;
   apiKey = v;
   localStorage.setItem('urlteq_key', v);
   document.getElementById('authModal').style.display = 'none';
   loadLinks();
 }
-function showKeyModal(showError = false) {
+function showKeyModal(showError) {
   document.getElementById('apiKeyInput').value = '';
   document.getElementById('authError').style.display = showError ? 'block' : 'none';
   document.getElementById('authModal').style.display = 'flex';
 }
-document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+document.getElementById('apiKeyInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') saveKey();
 });
 
-// ── Chip render ───────────────────────────────────────────────
+// ── Chip render (multi-select) ───────────────────────────────
 function renderChips() {
-  const c = document.getElementById('chips');
-  PRESETS.forEach(p => {
-    const el = document.createElement('div');
+  var c = document.getElementById('chips');
+  PRESETS.forEach(function(p, i) {
+    var el = document.createElement('div');
     el.className = 'chip';
     el.textContent = p.l;
-    el.onclick = () => selectChip(el, p);
+    el.onclick = function() { toggleChip(el, i); };
     c.appendChild(el);
   });
 }
-function selectChip(el, p) {
-  if (activeChip === el) {
+function toggleChip(el, idx) {
+  if (selectedPresets.has(idx)) {
+    selectedPresets.delete(idx);
     el.classList.remove('active');
-    activeChip = null;
-    document.getElementById('utm_source').value = '';
-    document.getElementById('utm_medium').value = '';
-    return;
-  }
-  if (activeChip) activeChip.classList.remove('active');
-  el.classList.add('active');
-  activeChip = el;
-  document.getElementById('utm_source').value = p.s;
-  document.getElementById('utm_medium').value = p.m;
-}
-function clearChips() {
-  if (activeChip) { activeChip.classList.remove('active'); activeChip = null; }
-}
-
-// ── URL input → detect UTM ────────────────────────────────────
-function onUrl() {
-  const raw = document.getElementById('urlInput').value.trim();
-  const sec = document.getElementById('utmSection');
-  if (!raw) { sec.classList.remove('open'); return; }
-  let parsed;
-  try { parsed = new URL(raw); } catch { sec.classList.remove('open'); return; }
-
-  const hasUtm = parsed.searchParams.has('utm_source');
-  if (hasUtm) {
-    document.getElementById('utm_source').value   = parsed.searchParams.get('utm_source')   || '';
-    document.getElementById('utm_medium').value   = parsed.searchParams.get('utm_medium')   || '';
-    document.getElementById('utm_campaign').value = parsed.searchParams.get('utm_campaign') || '';
-    document.getElementById('utm_content').value  = parsed.searchParams.get('utm_content')  || '';
-    document.getElementById('utm_term').value     = parsed.searchParams.get('utm_term')     || '';
-    document.getElementById('utmNotice').textContent = '✓ UTM params detected and pre-filled.';
   } else {
-    document.getElementById('utmNotice').textContent = 'No UTM params detected — add campaign tracking below.';
+    selectedPresets.add(idx);
+    el.classList.add('active');
   }
+  updateSummary();
+}
+
+// ── Custom channels ──────────────────────────────────────────
+function addCustom(type) {
+  var inputId = type === 'group' ? 'groupInput' : 'momentsInput';
+  var arr = type === 'group' ? customGroups : customMoments;
+  var name = document.getElementById(inputId).value.trim().replace(/[<>"]/g, '');
+  if (!name) return;
+  if (arr.indexOf(name) !== -1) return;
+  arr.push(name);
+  document.getElementById(inputId).value = '';
+  renderTags(type);
+  updateSummary();
+}
+function removeCustom(type, name) {
+  var arr = type === 'group' ? customGroups : customMoments;
+  var idx = arr.indexOf(name);
+  if (idx !== -1) arr.splice(idx, 1);
+  renderTags(type);
+  updateSummary();
+}
+function renderTags(type) {
+  var arr = type === 'group' ? customGroups : customMoments;
+  var containerId = type === 'group' ? 'groupTags' : 'momentsTags';
+  var prefix = type === 'group' ? '微信群' : '朋友圈';
+  var el = document.getElementById(containerId);
+  el.innerHTML = arr.map(function(name) {
+    return '<div class="tag">' + prefix + '-' + name +
+      '<span class="tag-x" data-name="' + name.replace(/"/g, '') + '">x</span></div>';
+  }).join('');
+}
+
+// ── Channel aggregation ──────────────────────────────────────
+function getChannels() {
+  var channels = [];
+  selectedPresets.forEach(function(idx) {
+    var p = PRESETS[idx];
+    channels.push({ label: p.l, source: p.s, medium: p.m, content: '' });
+  });
+  customGroups.forEach(function(name) {
+    var safe = name.toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fff_-]/g, '_');
+    channels.push({ label: '微信群-' + name, source: 'wechat', medium: 'group', content: safe });
+  });
+  customMoments.forEach(function(name) {
+    var safe = name.toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fff_-]/g, '_');
+    channels.push({ label: '朋友圈-' + name, source: 'wechat', medium: 'moments', content: safe });
+  });
+  return channels;
+}
+function updateSummary() {
+  var channels = getChannels();
+  var n = channels.length;
+  var btn = document.getElementById('genBtn');
+  var summary = document.getElementById('selSummary');
+  var slugField = document.getElementById('slugField');
+  if (n === 0) {
+    btn.textContent = 'Generate Short Link';
+    summary.textContent = '';
+    slugField.style.display = '';
+  } else {
+    btn.textContent = 'Generate ' + n + ' Short Links';
+    summary.textContent = n + ' channels: ' + channels.map(function(c) { return c.label; }).join(', ');
+    slugField.style.display = n > 1 ? 'none' : '';
+  }
+}
+
+// ── URL input ────────────────────────────────────────────────
+function onUrl() {
+  var raw = document.getElementById('urlInput').value.trim();
+  var sec = document.getElementById('channelSection');
+  if (!raw) { sec.classList.remove('open'); return; }
+  try { new URL(raw); } catch(e) { sec.classList.remove('open'); return; }
   sec.classList.add('open');
 }
 
-// ── Build final URL with UTM ──────────────────────────────────
-function buildUrl() {
-  const parsed = new URL(document.getElementById('urlInput').value.trim());
-  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(f => {
-    const v = document.getElementById(f).value.trim();
-    if (v) parsed.searchParams.set(f, v);
-    else   parsed.searchParams.delete(f);
+// ── Shorten ──────────────────────────────────────────────────
+function doShorten() {
+  var raw = document.getElementById('urlInput').value.trim();
+  if (!raw) { alert('Please enter a URL.'); return; }
+  try { new URL(raw); } catch(e) { alert('Please enter a valid URL.'); return; }
+
+  var channels = getChannels();
+  var btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  var promise;
+  if (channels.length === 0) {
+    promise = doShortenSingle(raw);
+  } else {
+    promise = doShortenBatch(raw, channels);
+  }
+  promise.then(function() {
+    loadLinks();
+  }).catch(function(e) {
+    if (e.message !== 'Unauthorized') alert('Error: ' + e.message);
+  }).finally(function() {
+    updateSummary();
+    btn.disabled = false;
   });
-  return parsed.toString();
 }
 
-// ── Shorten ───────────────────────────────────────────────────
-async function doShorten() {
-  let finalUrl;
-  try { finalUrl = buildUrl(); } catch { alert('Please enter a valid URL.'); return; }
-
-  const btn = document.getElementById('genBtn');
-  btn.textContent = 'Generating…'; btn.disabled = true;
-
-  const body = { url: finalUrl };
-  const slug = document.getElementById('customSlug').value.trim();
+function doShortenSingle(finalUrl) {
+  var body = { url: finalUrl };
+  var slug = document.getElementById('customSlug').value.trim();
   if (slug) body.customSlug = slug;
-  const exp = document.getElementById('expireAt').value;
+  var campaign = document.getElementById('campaignName').value.trim();
+  if (campaign) body.campaign = campaign;
+  var exp = document.getElementById('expireAt').value;
   if (exp) body.expireAt = exp;
-  const email = document.getElementById('notifyEmail').value.trim();
+  var email = document.getElementById('notifyEmail').value.trim();
   if (email) body.notifyEmail = email;
 
-  try {
-    const res = await fetch('/api/shorten', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-      body: JSON.stringify(body),
-    });
-    if (res.status === 401) { showKeyModal(true); return; }
-    const data = await res.json();
-    if (data.error) { alert('Error: ' + data.error); return; }
+  return fetch('/api/shorten', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify(body),
+  }).then(function(res) {
+    if (res.status === 401) { showKeyModal(true); throw new Error('Unauthorized'); }
+    return res.json();
+  }).then(function(data) {
+    if (data.error) throw new Error(data.error);
     currentShort = data.shortUrl;
-    showResult(data.shortUrl);
-    loadLinks();
-  } catch(e) {
-    alert('Request failed: ' + e.message);
-  } finally {
-    btn.textContent = 'Generate Short Link →'; btn.disabled = false;
-  }
+    showSingleResult(data.shortUrl);
+  });
 }
 
-// ── Show result + QR ──────────────────────────────────────────
-function showResult(shortUrl) {
-  document.getElementById('shortDisplay').textContent = shortUrl;
-  document.getElementById('result').classList.add('show');
-  const wrap = document.getElementById('qrWrap');
-  wrap.innerHTML = '';
-  new QRCode(wrap, {
-    text: shortUrl, width: 160, height: 160,
-    colorDark: '#2A9B72', colorLight: '#FFFFFF',
+function doShortenBatch(baseUrl, channels) {
+  var campaign = document.getElementById('campaignName').value.trim();
+  if (!campaign) { alert('Campaign name is required for multi-channel mode.'); return Promise.reject(new Error('Campaign name required')); }
+
+  var body = { url: baseUrl, campaign: campaign, channels: channels };
+  var exp = document.getElementById('expireAt').value;
+  if (exp) body.expireAt = exp;
+  var email = document.getElementById('notifyEmail').value.trim();
+  if (email) body.notifyEmail = email;
+
+  return fetch('/api/shorten/batch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify(body),
+  }).then(function(res) {
+    if (res.status === 401) { showKeyModal(true); throw new Error('Unauthorized'); }
+    return res.json();
+  }).then(function(data) {
+    if (data.error) throw new Error(data.error);
+    batchData = data;
+    showBatchResult(data);
+  });
+}
+
+// ── Results ──────────────────────────────────────────────────
+function showSingleResult(shortUrl) {
+  var el = document.getElementById('result');
+  el.innerHTML = '<div class="short-link">' + shortUrl + '</div>' +
+    '<div class="result-row">' +
+    '<button class="btn-sm btn-copy" data-url="' + shortUrl + '" onclick="copyOne(this)">Copy Link</button>' +
+    '<button class="btn-sm btn-dl" onclick="downloadQR()">Download QR</button>' +
+    '</div>' +
+    '<div class="qr-wrap" id="qrWrap"></div>';
+  el.classList.add('show');
+  renderQr(document.getElementById('qrWrap'), shortUrl, 160);
+}
+
+function showBatchResult(data) {
+  var el = document.getElementById('result');
+  var html = '<div class="batch-header">' +
+    '<div class="short-link">' + data.campaign + ' (' + data.links.length + ' links)</div>' +
+    '<button class="btn-sm btn-copy" onclick="copyAll(this)">Copy All</button>' +
+    '</div>';
+  data.links.forEach(function(lk) {
+    html += '<div class="batch-item"><div class="batch-item-top">' +
+      '<span class="batch-channel">' + lk.channel + '</span>' +
+      '<span class="batch-url">' + lk.shortUrl + '</span>' +
+      '<button class="btn-sm btn-copy" data-url="' + lk.shortUrl + '" onclick="copyOne(this)">Copy</button>' +
+      '<button class="btn-sm btn-dl" data-slug="' + lk.slug + '" data-url="' + lk.shortUrl + '" onclick="toggleBatchQR(this)">QR</button>' +
+      '</div><div class="batch-qr" id="qr-' + lk.slug + '"></div></div>';
+  });
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+
+function copyOne(btn) {
+  navigator.clipboard.writeText(btn.dataset.url).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+function copyAll(btn) {
+  if (!batchData) return;
+  var text = batchData.links.map(function(l) { return l.channel + ': ' + l.shortUrl; }).join('\\n');
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy All'; }, 2000);
+  });
+}
+function toggleBatchQR(btn) {
+  var slug = btn.dataset.slug;
+  var url = btn.dataset.url;
+  var el = document.getElementById('qr-' + slug);
+  if (el.classList.contains('show')) { el.classList.remove('show'); return; }
+  if (!el.hasChildNodes()) {
+    renderQr(el, url, 120);
+  }
+  el.classList.add('show');
+}
+function downloadQR() {
+  downloadQrFromContainer(document.getElementById('qrWrap'), 'urlteq-qr.png');
+}
+
+function renderQr(el, url, size) {
+  el.innerHTML = '';
+  el.dataset.qrUrl = url;
+  el.dataset.qrSize = String(size);
+  new QRCode(el, {
+    text: url,
+    width: size,
+    height: size,
+    colorDark: qrColorDark,
+    colorLight: '#FFFFFF',
     correctLevel: QRCode.CorrectLevel.M,
   });
 }
-function copyLink(e) {
-  navigator.clipboard.writeText(currentShort).then(() => {
-    e.target.textContent = '✓ Copied!';
-    setTimeout(() => e.target.textContent = 'Copy Link', 2000);
-  });
-}
-function downloadQR() {
-  const c = document.querySelector('#qrWrap canvas');
-  if (!c) { alert('Generate a link first.'); return; }
-  const a = document.createElement('a');
-  a.download = 'urlteq-qr.png'; a.href = c.toDataURL(); a.click();
+
+function ensureQr(el, url, size) {
+  var needsRerender = !el.hasChildNodes() || el.dataset.qrUrl !== url || el.dataset.qrSize !== String(size);
+  el.dataset.qrUrl = url;
+  el.dataset.qrSize = String(size);
+  if (needsRerender) renderQr(el, url, size);
 }
 
-// ── History ───────────────────────────────────────────────────
-async function loadLinks() {
+function getQrDataUrl(el) {
+  var canvas = el.querySelector('canvas');
+  if (canvas) return canvas.toDataURL('image/png');
+  var img = el.querySelector('img');
+  if (img && img.src) return img.src;
+  return '';
+}
+
+function downloadQrFromContainer(el, filename) {
+  var dataUrl = getQrDataUrl(el);
+  if (!dataUrl) return;
+  var a = document.createElement('a');
+  a.download = filename;
+  a.href = dataUrl;
+  a.click();
+}
+
+function rerenderExistingQrs() {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-qr-url]'), function(el) {
+    if (!el.hasChildNodes()) return;
+    renderQr(el, el.dataset.qrUrl, parseInt(el.dataset.qrSize || '120', 10));
+  });
+}
+
+function formatShare(clicks, total) {
+  if (!total) return '0%';
+  return Math.round((clicks / total) * 100) + '%';
+}
+
+function historyQrMarkup(slug, shortUrl) {
+  return '<div class="history-qr" id="history-qr-' + slug + '">' +
+    '<div class="history-qr-code" id="history-qr-code-' + slug + '"></div>' +
+    '<button class="btn-sm btn-dl" data-slug="' + slug + '" data-url="' + shortUrl + '" onclick="downloadHistoryQR(this)">Download QR</button>' +
+    '</div>';
+}
+
+function toggleHistoryQR(btn) {
+  var slug = btn.dataset.slug;
+  var url = btn.dataset.url;
+  var wrap = document.getElementById('history-qr-' + slug);
+  var qrEl = document.getElementById('history-qr-code-' + slug);
+  if (!wrap || !qrEl) return;
+
+  if (wrap.classList.contains('show')) {
+    wrap.classList.remove('show');
+    btn.textContent = 'QR';
+    return;
+  }
+
+  ensureQr(qrEl, url, 120);
+  wrap.classList.add('show');
+  btn.textContent = 'Hide QR';
+}
+
+function downloadHistoryQR(btn) {
+  var slug = btn.dataset.slug;
+  var url = btn.dataset.url;
+  var qrEl = document.getElementById('history-qr-code-' + slug);
+  if (!qrEl) return;
+  ensureQr(qrEl, url, 160);
+  downloadQrFromContainer(qrEl, 'urlteq-' + slug + '-qr.png');
+}
+
+// ── History ──────────────────────────────────────────────────
+function loadLinks() {
   if (!apiKey) return;
-  try {
-    const res = await fetch('/api/links', {
-      headers: { 'Authorization': 'Bearer ' + apiKey },
-    });
+  fetch('/api/links', {
+    headers: { 'Authorization': 'Bearer ' + apiKey },
+  }).then(function(res) {
     if (!res.ok) return;
-    render(await res.json());
-  } catch {}
+    return res.json();
+  }).then(function(data) {
+    if (data) render(data);
+  }).catch(function() {});
 }
 
 function render(links) {
-  const el = document.getElementById('history');
+  var el = document.getElementById('history');
   if (!links.length) {
     el.innerHTML = '<p class="empty">No links yet — create your first one!</p>';
     return;
   }
-  const origin = window.location.origin;
-  const now    = Date.now();
+  var origin = window.location.origin;
+  var now = Date.now();
 
-  el.innerHTML = links.slice(0, 15).map(lk => {
-    const date = new Date(lk.created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
-    const urlTrim = lk.url.length > 52 ? lk.url.slice(0,52)+'…' : lk.url;
+  // Group by campaign
+  var campaignMap = {};
+  var campaignOrder = [];
+  var ungrouped = [];
 
-    let expiryBadge = '';
+  links.forEach(function(lk) {
+    if (lk.campaign) {
+      if (!campaignMap[lk.campaign]) {
+        campaignMap[lk.campaign] = [];
+        campaignOrder.push(lk.campaign);
+      }
+      campaignMap[lk.campaign].push(lk);
+    } else {
+      ungrouped.push(lk);
+    }
+  });
+
+  var html = '';
+
+  // Campaign groups
+  campaignOrder.forEach(function(name) {
+    var cLinks = campaignMap[name];
+    var total = cLinks.reduce(function(s, l) { return s + (l.clicks || 0); }, 0);
+    var date = new Date(cLinks[0].created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    html += '<div class="campaign-group">' +
+      '<div class="campaign-header" onclick="this.nextElementSibling.classList.toggle(\\'collapsed\\')">' +
+      '<div><span class="campaign-name">' + name + '</span>' +
+      '<span class="campaign-meta"> &middot; ' + cLinks.length + ' channels &middot; ' + total + ' total clicks</span></div>' +
+      '<span class="hmeta">' + date + '</span></div>' +
+      '<div class="campaign-links">';
+    cLinks.forEach(function(lk) {
+      var shortUrl = origin + '/' + lk.slug;
+      var clicks = lk.clicks || 0;
+      html += '<div class="ch-item"><div class="ch-link">' +
+        '<span class="ch-label">' + (lk.channel || '—') + '</span>' +
+        '<a class="ch-slug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
+        '<span class="ch-clicks">' + clicks + ' clicks &middot; ' + formatShare(clicks, total) + '</span>' +
+        '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
+        '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
+        '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
+    });
+    html += '</div></div>';
+  });
+
+  // Ungrouped links
+  ungrouped.slice(0, 15).forEach(function(lk) {
+    var shortUrl = origin + '/' + lk.slug;
+    var date = new Date(lk.created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    var urlTrim = lk.url.length > 52 ? lk.url.slice(0,52) + '...' : lk.url;
+    var expiryBadge = '';
     if (lk.expireAt) {
-      const diff = lk.expireAt - now;
-      const days = Math.ceil(diff / 86400000);
-      if (diff < 0) {
-        expiryBadge = '<span class="badge badge-expired">Expired</span>';
-      } else if (days <= 3) {
-        expiryBadge = '<span class="badge badge-expiry">Expires in ' + days + 'd</span>';
-      } else {
-        const d = new Date(lk.expireAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      var diff = lk.expireAt - now;
+      var days = Math.ceil(diff / 86400000);
+      if (diff < 0) expiryBadge = '<span class="badge badge-expired">Expired</span>';
+      else if (days <= 3) expiryBadge = '<span class="badge badge-expiry">Expires in ' + days + 'd</span>';
+      else {
+        var d = new Date(lk.expireAt).toLocaleDateString('en-US',{month:'short',day:'numeric'});
         expiryBadge = '<span class="badge badge-expiry">Exp ' + d + '</span>';
       }
     }
+    html += '<div class="hitem">' +
+      '<div class="hitem-top">' +
+      '<a class="hslug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
+      '<span class="hmeta">' + date + '</span></div>' +
+      '<div class="hurl" title="' + lk.url + '">' + urlTrim + '</div>' +
+      '<div class="hbot">' +
+      '<span class="badge badge-click">' + (lk.clicks||0) + ' clicks</span>' +
+      expiryBadge +
+      '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
+      '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
+      '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
+  });
 
-    return \`<div class="hitem">
-      <div class="hitem-top">
-        <a class="hslug" href="\${origin}/\${lk.slug}" target="_blank">/\${lk.slug}</a>
-        <span class="hmeta">\${date}</span>
-      </div>
-      <div class="hurl" title="\${lk.url}">\${urlTrim}</div>
-      <div class="hbot">
-        <span class="badge badge-click">\${lk.clicks||0} clicks</span>
-        \${expiryBadge}
-        <button class="btn-del" onclick="del('\${lk.slug}')">Delete</button>
-      </div>
-    </div>\`;
-  }).join('');
+  el.innerHTML = html;
 }
 
-async function del(slug) {
+function del(slug) {
   if (!confirm('Delete /' + slug + '?')) return;
-  await fetch('/api/links/' + slug, {
+  fetch('/api/links/' + slug, {
     method: 'DELETE', headers: { 'Authorization': 'Bearer ' + apiKey },
-  });
-  loadLinks();
+  }).then(function() { loadLinks(); });
 }
 
 boot();

@@ -5,7 +5,7 @@ import { getHtml }        from './frontend/index.js';
 
 export default {
   // ── HTTP requests ─────────────────────────────────────────
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url  = new URL(request.url);
     const path = url.pathname;
 
@@ -17,7 +17,7 @@ export default {
       });
     }
 
-    return handleRedirect(request, env);
+    return handleRedirect(request, env, ctx);
   },
 
   // ── Cron trigger (daily expiry reminders) ─────────────────

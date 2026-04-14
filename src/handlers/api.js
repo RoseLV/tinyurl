@@ -93,9 +93,11 @@ export async function handleApi(request, env) {
       url: longUrl,
       created: Date.now(),
       clicks: 0,
+      ...(body.campaign && { campaign: body.campaign.trim() }),
+      ...(body.channel  && { channel: body.channel }),
       ...(expireTs    && { expireAt: expireTs }),
       ...(notifyEmail && { notifyEmail }),
-      notified: false,   // will be set true after expiry email is sent
+      notified: false,
     };
 
     // If expiry is set, also set KV TTL so the key auto-deletes
@@ -119,6 +121,90 @@ export async function handleApi(request, env) {
       created: linkData.created,
       expireAt: expireTs || null,
     });
+  }
+
+  // ── POST /api/shorten/batch ────────────────────────────────
+  if (url.pathname === '/api/shorten/batch' && request.method === 'POST') {
+    if (!checkAuth(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+    let body;
+    try { body = await request.json(); }
+    catch { return json({ error: 'Invalid JSON body' }, 400); }
+
+    const { url: baseUrl, campaign, channels, expireAt, notifyEmail } = body;
+
+    if (!baseUrl || !validateUrl(baseUrl)) {
+      return json({ error: 'Invalid or missing URL' }, 400);
+    }
+    if (!campaign || typeof campaign !== 'string' || !campaign.trim()) {
+      return json({ error: 'Campaign name is required for batch creation' }, 400);
+    }
+    if (!Array.isArray(channels) || channels.length === 0) {
+      return json({ error: 'At least one channel is required' }, 400);
+    }
+    if (channels.length > 50) {
+      return json({ error: 'Maximum 50 channels per batch' }, 400);
+    }
+
+    let expireTs = null;
+    if (expireAt) {
+      expireTs = new Date(expireAt).getTime();
+      if (isNaN(expireTs) || expireTs <= Date.now()) {
+        return json({ error: 'expireAt must be a future date' }, 400);
+      }
+    }
+
+    const putOptions = expireTs ? { expiration: Math.floor(expireTs / 1000) } : {};
+    const list = await getList(env);
+    const reqUrl = new URL(request.url);
+    const results = [];
+    const campaignName = campaign.trim();
+
+    for (const ch of channels) {
+      // Build URL with UTM params for this channel
+      const parsed = new URL(baseUrl);
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(p => parsed.searchParams.delete(p));
+      if (ch.source) parsed.searchParams.set('utm_source', ch.source);
+      if (ch.medium) parsed.searchParams.set('utm_medium', ch.medium);
+      parsed.searchParams.set('utm_campaign', campaignName);
+      if (ch.content) parsed.searchParams.set('utm_content', ch.content);
+
+      let slug = generateSlug();
+      let attempts = 0;
+      while ((await env.URLS.get(`link:${slug}`)) && attempts < 10) {
+        slug = generateSlug();
+        attempts++;
+      }
+
+      const linkData = {
+        slug,
+        url: parsed.toString(),
+        created: Date.now(),
+        clicks: 0,
+        campaign: campaignName,
+        channel: ch.label || '',
+        ...(expireTs && { expireAt: expireTs }),
+        ...(notifyEmail && { notifyEmail }),
+        notified: false,
+      };
+
+      await env.URLS.put(`link:${slug}`, JSON.stringify(linkData), putOptions);
+      list.unshift(slug);
+
+      results.push({
+        slug,
+        shortUrl: `${reqUrl.protocol}//${reqUrl.host}/${slug}`,
+        channel: ch.label || '',
+        originalUrl: parsed.toString(),
+        created: linkData.created,
+        expireAt: expireTs || null,
+      });
+    }
+
+    if (list.length > 200) list.length = 200;
+    await saveList(env, list);
+
+    return json({ campaign: campaignName, links: results });
   }
 
   // ── GET /api/links ─────────────────────────────────────────
