@@ -672,8 +672,8 @@ var QR_PRESETS = ['#2A9B72', '#F08080', '#2563EB', '#0F172A', '#D97706', '#0F766
 // ── State ─────────────────────────────────────────────────────
 var apiKey         = localStorage.getItem('urlteq_key') || '';
 var selectedPresets = new Set();
-var customGroups   = [];
-var customMoments  = [];
+var customGroups   = JSON.parse(localStorage.getItem('urlteq_groups') || '[]');
+var customMoments  = JSON.parse(localStorage.getItem('urlteq_moments') || '[]');
 var batchData      = null;
 var currentShort   = '';
 var qrColorDark    = normalizeHexColor(localStorage.getItem('urlteq_qr_color') || '#2A9B72');
@@ -683,6 +683,10 @@ function boot() {
   renderChips();
   renderQrSwatches();
   syncQrPalette();
+  // Render persisted tags
+  if (customGroups.length) renderTags('group');
+  if (customMoments.length) renderTags('moments');
+  updateSummary();
   var tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   document.getElementById('expireAt').min = tomorrow.toISOString().split('T')[0];
@@ -787,6 +791,7 @@ function addCustom(type) {
   if (arr.indexOf(name) !== -1) return;
   arr.push(name);
   document.getElementById(inputId).value = '';
+  saveTags(type);
   renderTags(type);
   updateSummary();
 }
@@ -794,8 +799,13 @@ function removeCustom(type, name) {
   var arr = type === 'group' ? customGroups : customMoments;
   var idx = arr.indexOf(name);
   if (idx !== -1) arr.splice(idx, 1);
+  saveTags(type);
   renderTags(type);
   updateSummary();
+}
+function saveTags(type) {
+  if (type === 'group') localStorage.setItem('urlteq_groups', JSON.stringify(customGroups));
+  else localStorage.setItem('urlteq_moments', JSON.stringify(customMoments));
 }
 function renderTags(type) {
   var arr = type === 'group' ? customGroups : customMoments;
@@ -1116,6 +1126,21 @@ function render(links) {
     }
   });
 
+  // Build base-campaign totals: e.g. "roundtable4-1","roundtable4-2" → base "roundtable4"
+  // Strip trailing "-<number>" to find the base campaign name
+  function getBaseCampaign(name) {
+    var m = name.match(/^(.+)-(\\d+)$/);
+    return m ? m[1] : name;
+  }
+  var baseCampaignClicks = {};
+  campaignOrder.forEach(function(name) {
+    var base = getBaseCampaign(name);
+    if (!baseCampaignClicks[base]) baseCampaignClicks[base] = 0;
+    campaignMap[name].forEach(function(lk) {
+      baseCampaignClicks[base] += (lk.clicks || 0);
+    });
+  });
+
   // Build a unified list of render items (campaigns + ungrouped) sorted by created desc
   var items = [];
   campaignOrder.forEach(function(name) {
@@ -1136,10 +1161,13 @@ function render(links) {
     if (item.type === 'campaign') {
       var cLinks = item.links;
       var total = cLinks.reduce(function(s, l) { return s + (l.clicks || 0); }, 0);
+      var baseName = getBaseCampaign(item.name);
+      var baseTotal = baseCampaignClicks[baseName] || total;
       html += '<div class="campaign-group">' +
         '<div class="campaign-header" onclick="this.nextElementSibling.classList.toggle(\\'collapsed\\')">' +
         '<div><span class="campaign-name">' + item.name + '</span>' +
-        '<span class="campaign-meta"> &middot; ' + cLinks.length + ' channels &middot; ' + total + ' total clicks</span></div>' +
+        '<span class="campaign-meta"> &middot; ' + cLinks.length + ' channels &middot; ' + total + ' total clicks' +
+        (baseTotal !== total ? ' &middot; ' + baseName + ' total: ' + baseTotal : '') + '</span></div>' +
         '<span class="hmeta">' + fmtDate(item.created) + '</span></div>' +
         '<div class="campaign-links">';
       cLinks.forEach(function(lk) {
@@ -1148,7 +1176,7 @@ function render(links) {
         html += '<div class="ch-item"><div class="ch-link">' +
           '<span class="ch-label">' + (lk.channel || '—') + '</span>' +
           '<a class="ch-slug" href="' + shortUrl + '" target="_blank">/' + lk.slug + '</a>' +
-          '<span class="ch-clicks">' + clicks + ' clicks &middot; ' + formatShare(clicks, total) + '</span>' +
+          '<span class="ch-clicks">' + clicks + ' clicks &middot; ' + formatShare(clicks, baseTotal) + '</span>' +
           '<button class="btn-link" data-slug="' + lk.slug + '" data-url="' + shortUrl + '" onclick="toggleHistoryQR(this)">QR</button>' +
           '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
           '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
