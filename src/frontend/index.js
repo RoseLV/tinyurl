@@ -383,6 +383,109 @@ export function getHtml() {
       background: var(--white); border-radius: 12px; padding: 8px;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
     }
+
+    /* ── Poster & Copy Template ────────────── */
+    .poster-upload-area {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .poster-upload-area label.btn-upload {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-sm);
+      background: var(--white); border: 2px dashed var(--g-accent);
+      color: var(--g-dark); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: background .15s;
+      text-transform: none; letter-spacing: 0;
+    }
+    .poster-upload-area label.btn-upload:hover { background: var(--g-bg); }
+    .poster-upload-area .poster-preview {
+      width: 48px; height: 68px; border-radius: 6px;
+      object-fit: cover; border: 1px solid var(--gray-200);
+      display: none;
+    }
+    .poster-upload-area .poster-filename {
+      font-size: 12px; color: var(--gray-600); flex: 1;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .copy-template {
+      width: 100%; min-height: 100px; max-height: 200px;
+      padding: 11px 14px; border: 2px solid transparent;
+      border-radius: var(--radius-sm); font-size: 13px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--white); outline: none; resize: vertical;
+      transition: border-color .2s, box-shadow .2s;
+      color: var(--gray-800); line-height: 1.5;
+    }
+    .copy-template:focus { border-color: var(--g-accent); box-shadow: 0 0 0 3px rgba(82,201,155,.1); }
+    .copy-template::placeholder { color: var(--gray-400); }
+    .tpl-hint {
+      font-size: 11px; color: var(--gray-400); margin-top: 2px;
+    }
+
+    /* ── Poster + Copy result cards ────────── */
+    .poster-results {
+      display: none; margin-top: 16px;
+    }
+    .poster-results.show { display: block; }
+    .poster-results-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .poster-results-header h3 {
+      font-size: 16px; font-weight: 800; color: var(--g-dark);
+    }
+    .poster-card {
+      background: var(--white); border-radius: var(--radius-sm);
+      padding: 14px; margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .poster-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .poster-card-channel {
+      font-size: 12px; font-weight: 700; color: var(--g-dark);
+      background: rgba(82,201,155,.15); padding: 3px 10px; border-radius: 8px;
+    }
+    .poster-card-link {
+      font-size: 12px; font-weight: 700; color: var(--gray-600);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .poster-card-body { display: flex; gap: 14px; }
+    .poster-card-img-wrap {
+      flex-shrink: 0; width: 120px;
+    }
+    .poster-card-img-wrap img {
+      width: 100%; border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1);
+      cursor: pointer;
+    }
+    .poster-card-copy {
+      flex: 1; min-width: 0;
+    }
+    .poster-card-copy pre {
+      font-size: 11px; line-height: 1.5; white-space: pre-wrap;
+      word-break: break-all; color: var(--gray-800);
+      background: var(--gray-100); padding: 8px 10px;
+      border-radius: 8px; max-height: 160px; overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+    }
+    .poster-card-actions {
+      display: flex; gap: 6px; margin-top: 8px;
+    }
+    .poster-card-actions .btn-sm { font-size: 11px; }
+    .btn-green-sm {
+      padding: 6px 12px; border-radius: 8px; font-size: 11px;
+      font-weight: 700; cursor: pointer; border: none;
+      background: var(--g-bg); color: var(--g-dark);
+    }
+    .btn-green-sm:hover { opacity: .8; }
+
+    @media (max-width: 680px) {
+      .poster-card-body { flex-direction: column; }
+      .poster-card-img-wrap { width: 100%; max-width: 200px; }
+    }
   </style>
 </head>
 <body>
@@ -442,8 +545,12 @@ export function getHtml() {
             placeholder="e.g. openclaw-roundtable-3" />
         </div>
 
-        <div class="section-label">Channel presets — click to toggle (multi-select)</div>
-        <div class="chips" id="chips"></div>
+        <div class="section-label" style="cursor:pointer;user-select:none;" onclick="var t=document.getElementById('presetsWrap');t.classList.toggle('open');this.dataset.open=t.classList.contains('open')?'1':'0';this.querySelector('.toggle-arrow').textContent=t.classList.contains('open')?'▾':'▸'">
+          <span class="toggle-arrow">▸</span> Channel presets (multi-select)
+        </div>
+        <div class="collapsible" id="presetsWrap">
+          <div class="chips" id="chips"></div>
+        </div>
 
         <hr class="divider" />
 
@@ -464,6 +571,24 @@ export function getHtml() {
         <div class="tags" id="momentsTags"></div>
 
         <div class="sel-summary" id="selSummary"></div>
+
+        <hr class="divider" />
+
+        <div class="section-label">Poster & Copy Template (optional)</div>
+        <div class="poster-upload-area">
+          <label class="btn-upload">
+            Upload Poster
+            <input type="file" accept="image/*" id="posterFile" onchange="onPosterUpload(this)" style="display:none" />
+          </label>
+          <img class="poster-preview" id="posterPreview" />
+          <span class="poster-filename" id="posterFilename">No poster uploaded</span>
+        </div>
+        <div class="field">
+          <label>Copywriting Template</label>
+          <textarea class="copy-template" id="copyTemplate"
+            placeholder="Paste your copy here, use ${'$'}{link} where the short link should go.&#10;&#10;Example:&#10;🚀 Event Title&#10;🔗 Register: ${'$'}{link}"></textarea>
+          <div class="tpl-hint">Use <strong>${'$'}{link}</strong> as placeholder — it will be replaced with each channel's short link.</div>
+        </div>
       </div>
 
       <hr class="divider" />
@@ -497,6 +622,9 @@ export function getHtml() {
 
       <!-- Result (populated by JS) -->
       <div class="result" id="result"></div>
+
+      <!-- Poster + Copy results (populated by JS) -->
+      <div class="poster-results" id="posterResults"></div>
     </div>
 
     <!-- ── RIGHT: History ── -->
@@ -689,11 +817,11 @@ function getChannels() {
   });
   customGroups.forEach(function(name) {
     var safe = name.toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fff_-]/g, '_');
-    channels.push({ label: '微信群-' + name, source: 'wechat', medium: 'group', content: safe });
+    channels.push({ label: '微信群-' + name, source: safe + '_group', medium: 'group', content: safe });
   });
   customMoments.forEach(function(name) {
     var safe = name.toLowerCase().replace(/[^a-z0-9\\u4e00-\\u9fff_-]/g, '_');
-    channels.push({ label: '朋友圈-' + name, source: 'wechat', medium: 'moments', content: safe });
+    channels.push({ label: '朋友圈-' + name, source: safe + '_moments', medium: 'moments', content: safe });
   });
   return channels;
 }
@@ -828,6 +956,9 @@ function showBatchResult(data) {
   });
   el.innerHTML = html;
   el.classList.add('show');
+
+  // Generate poster + copy cards if templates provided
+  generatePosterCards(data.links);
 }
 
 function copyOne(btn) {
@@ -1022,6 +1153,13 @@ function render(links) {
           '<button class="btn-del" onclick="del(\\'' + lk.slug + '\\')">Delete</button>' +
           '</div>' + historyQrMarkup(lk.slug, shortUrl) + '</div>';
       });
+      // Regenerate poster button (only if poster/template available)
+      var linksJson = JSON.stringify(cLinks.map(function(lk) {
+        return { channel: lk.channel || '', slug: lk.slug, shortUrl: origin + '/' + lk.slug };
+      })).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+      html += '<div style="padding:6px 8px;">' +
+        '<button class="btn-link" onclick="regeneratePosters(this)" data-links="' + linksJson + '" ' +
+        'style="font-size:12px;">Regenerate Posters</button></div>';
       html += '</div></div>';
     } else {
       var lk = item.link;
@@ -1060,6 +1198,184 @@ function del(slug) {
   fetch('/api/links/' + slug, {
     method: 'DELETE', headers: { 'Authorization': 'Bearer ' + apiKey },
   }).then(function() { loadLinks(); });
+}
+
+// ── Poster & Copy Template ─────────────────────────────────
+var posterDataUrl = null;
+
+function onPosterUpload(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    posterDataUrl = e.target.result;
+    var preview = document.getElementById('posterPreview');
+    preview.src = posterDataUrl;
+    preview.style.display = 'block';
+    document.getElementById('posterFilename').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function generatePosterCards(batchLinks) {
+  var template = document.getElementById('copyTemplate').value;
+  var container = document.getElementById('posterResults');
+
+  // If no poster and no template, hide
+  if (!posterDataUrl && !template.trim()) {
+    container.classList.remove('show');
+    return;
+  }
+
+  var html = '<div class="poster-results-header">' +
+    '<h3>Ready to Share (' + batchLinks.length + ')</h3>' +
+    '</div>';
+
+  batchLinks.forEach(function(lk, idx) {
+    var copyText = template ? template.replace(/\\$\\{link\\}/g, lk.shortUrl) : lk.shortUrl;
+    var escapedCopy = copyText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    html += '<div class="poster-card" id="pcard-' + idx + '">' +
+      '<div class="poster-card-header">' +
+      '<span class="poster-card-channel">' + lk.channel + '</span>' +
+      '<span class="poster-card-link">' + lk.shortUrl + '</span>' +
+      '</div>' +
+      '<div class="poster-card-body">';
+
+    if (posterDataUrl) {
+      html += '<div class="poster-card-img-wrap">' +
+        '<canvas id="pcanvas-' + idx + '" style="display:none"></canvas>' +
+        '<img id="pimg-' + idx + '" alt="poster" />' +
+        '</div>';
+    }
+
+    html += '<div class="poster-card-copy">' +
+      '<pre>' + escapedCopy + '</pre>' +
+      '<div class="poster-card-actions">' +
+      '<button class="btn-green-sm" onclick="copyCardText(this,' + idx + ')">Copy Text</button>';
+
+    if (posterDataUrl) {
+      html += '<button class="btn-green-sm" onclick="downloadPoster(' + idx + ',\\'' + (lk.channel || lk.slug).replace(/'/g,'') + '\\')">Download Poster</button>';
+    }
+
+    html += '</div></div></div></div>';
+  });
+
+  container.innerHTML = html;
+  container.classList.add('show');
+
+  // Now render each poster with QR composited
+  if (posterDataUrl) {
+    batchLinks.forEach(function(lk, idx) {
+      compositePoster(idx, lk.shortUrl);
+    });
+  }
+}
+
+function compositePoster(idx, shortUrl) {
+  var posterImg = new Image();
+  posterImg.onload = function() {
+    var pw = posterImg.naturalWidth;
+    var ph = posterImg.naturalHeight;
+
+    // QR size: ~18% of poster width, positioned bottom-right
+    var qrSize = Math.round(pw * 0.18);
+    var qrMarginRight = Math.round(pw * 0.05);
+    var qrMarginBottom = Math.round(ph * 0.04);
+    var qrX = pw - qrSize - qrMarginRight;
+    var qrY = ph - qrSize - qrMarginBottom;
+
+    // Generate QR into a temp off-screen div
+    var tempDiv = document.createElement('div');
+    tempDiv.style.position = 'fixed';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    new QRCode(tempDiv, {
+      text: shortUrl,
+      width: qrSize,
+      height: qrSize,
+      colorDark: '#000000',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+
+    // Wait for QR canvas to render
+    setTimeout(function() {
+      var qrCanvas = tempDiv.querySelector('canvas');
+      var canvas = document.getElementById('pcanvas-' + idx);
+      canvas.width = pw;
+      canvas.height = ph;
+      var ctx = canvas.getContext('2d');
+
+      // Draw poster
+      ctx.drawImage(posterImg, 0, 0, pw, ph);
+
+      // Draw white background for QR (with padding)
+      var pad = Math.round(qrSize * 0.08);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      var r = Math.round(qrSize * 0.05);
+      var bx = qrX - pad, by = qrY - pad, bw = qrSize + pad * 2, bh = qrSize + pad * 2;
+      ctx.moveTo(bx + r, by);
+      ctx.arcTo(bx + bw, by, bx + bw, by + bh, r);
+      ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+      ctx.arcTo(bx, by + bh, bx, by, r);
+      ctx.arcTo(bx, by, bx + bw, by, r);
+      ctx.closePath();
+      ctx.fill();
+
+      // Draw QR
+      if (qrCanvas) {
+        ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+      }
+
+      // Export to img tag
+      var dataUrl = canvas.toDataURL('image/png');
+      var imgEl = document.getElementById('pimg-' + idx);
+      imgEl.src = dataUrl;
+
+      document.body.removeChild(tempDiv);
+    }, 100);
+  };
+  posterImg.src = posterDataUrl;
+}
+
+function copyCardText(btn, idx) {
+  var template = document.getElementById('copyTemplate').value;
+  var shortUrl = batchData.links[idx].shortUrl;
+  var text = template ? template.replace(/\\$\\{link\\}/g, shortUrl) : shortUrl;
+  navigator.clipboard.writeText(text).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+}
+
+function regeneratePosters(btn) {
+  if (!posterDataUrl && !document.getElementById('copyTemplate').value.trim()) {
+    alert('Please upload a poster image or enter a copy template first, then click Regenerate.');
+    return;
+  }
+  var linksData;
+  try { linksData = JSON.parse(btn.dataset.links); } catch(e) { return; }
+  generatePosterCards(linksData);
+  // Scroll to poster results
+  var el = document.getElementById('posterResults');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function downloadPoster(idx, channelName) {
+  var canvas = document.getElementById('pcanvas-' + idx);
+  if (!canvas) return;
+  canvas.toBlob(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.download = 'poster-' + channelName + '.png';
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
 }
 
 boot();

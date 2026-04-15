@@ -18,3 +18,4 @@ node_modules/
 # Editor / local tool state
 .claude/
 README.md
+CLAUDE.md
