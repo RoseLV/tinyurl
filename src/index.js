@@ -2,6 +2,7 @@ import { handleRedirect } from './handlers/redirect.js';
 import { handleApi }      from './handlers/api.js';
 import { handleCron }     from './handlers/cron.js';
 import { getHtml }        from './frontend/index.js';
+import { getAdminHtml }   from './frontend/admin.js';
 
 export default {
   // ── HTTP requests ─────────────────────────────────────────
@@ -13,6 +14,12 @@ export default {
 
     if (path === '/' || path === '') {
       return new Response(getHtml(), {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+    }
+
+    if (path === '/admin' || path === '/admin/') {
+      return new Response(getAdminHtml(), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
       });
     }
