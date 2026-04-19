@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "test": "node --experimental-default-type=module --test tests/*.test.js",
     "kv:create": "wrangler kv:namespace create URLS",
     "secret": "wrangler secret put API_KEY"
   },

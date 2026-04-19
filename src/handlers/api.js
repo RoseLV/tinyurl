@@ -1,5 +1,6 @@
 import { generateSlug } from '../utils/slug.js';
 import { validateUrl } from '../utils/validate.js';
+import { handleAdmin } from './admin.js';
 
 // ─── Helpers ──────────────────────────────────────────────────
 
@@ -39,6 +40,11 @@ export async function handleApi(request, env) {
 
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: CORS });
+  }
+
+  // ── Admin tenant management (delegated) ───────────────────
+  if (url.pathname === '/api/tenants' || url.pathname.startsWith('/api/tenants/')) {
+    return handleAdmin(request, env);
   }
 
   // ── POST /api/shorten ──────────────────────────────────────
